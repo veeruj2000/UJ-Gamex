@@ -1,0 +1,15 @@
+/* Game Container */
+.game-container {
+    background-color: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Score Styling */
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffcc00;
+}

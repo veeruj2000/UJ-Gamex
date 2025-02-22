@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Tic-Tac-Toe Leaderboard{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center mt-4">Tic-Tac-Toe Leaderboard</h1>
+        
+        <table class="table table-bordered mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Final Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in leaderboard %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ player.user.username }}</td>
+                    <td>{{ player.wins }}</td>
+                    <td>{{ player.losses }}</td>
+                    <td>{{ player.wins|add:-player.losses }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No players have played yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

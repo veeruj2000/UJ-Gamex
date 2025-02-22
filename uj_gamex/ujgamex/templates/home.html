@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - My Django App{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1 class="mt-4">Welcome to UJ Gamex!</h1>
+    <p class="lead">Play exciting games right here!</p>
+
+    <!-- Games Section -->
+    <div class="row mt-4">
+        <!-- Game 1: Tic-Tac-Toe -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Tic-Tac-Toe">
+                <div class="card-body">
+                    <h5 class="card-title">Tic-Tac-Toe</h5>
+                    <p class="card-text">Classic strategy game. Play against a friend!</p>
+                    <a href="{% url 'tic_tac_toe' %}" class="btn btn-primary">Play Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 2: Coming Soon (Placeholder) -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Coming Soon">
+                <div class="card-body">
+                    <h5 class="card-title">More Games Coming!</h5>
+                    <p class="card-text">Stay tuned for more fun games.</p>
+                    <a href="#" class="btn btn-secondary disabled">Coming Soon</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Example Dynamic Data -->
+    {% if user.is_authenticated %}
+        <p class="mt-4">Hello, {{ user.username }}! You are logged in.</p>
+    {% else %}
+        <p class="mt-4">You are not logged in. <a href="{% url 'login' %}">Login</a> to access more features.</p>
+    {% endif %}
+
+    <!-- Leaderboard Section -->
+    <div class="leaderboard mt-5">
+        <h2 class="text-center">🏆 Tic-Tac-Toe Leaderboard</h2>
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Final Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in leaderboard %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ player.user.username }}</td>
+                    <td>{{ player.wins }}</td>
+                    <td>{{ player.losses }}</td>
+                    <td>{{ player.final_score }}</td>
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No players have played yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
