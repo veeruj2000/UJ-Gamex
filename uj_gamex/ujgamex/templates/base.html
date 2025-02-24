@@ -11,33 +11,40 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">UJ Gamex</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item" style="color:white";><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-                    <li class="nav-item" style="color:white";><a class="nav-link" href="{% url 'about' %}">About</a></li>
-                    
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+        <!-- ***********************  NAV BAR  *********************** -->
+        <nav class="navbar">
+          <div class="brand-title">
+            <a href="{% url 'home' %}">
+              <img class="ujlogo" src="images/ujlogo.png" alt="ujlogo">
+            </a>
+          </div>
+          <a href="#" class="toggle-button">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </a>
+          <div class="navbar-links">
+            <ul>
+              <li><a href="{% url 'home' %}">HOME</a></li>
+              <li><a href="{% url 'about' %}">ABOUT</a></li>
+              {% if user.is_authenticated %}
+                  <li><a href="{% url 'logout' %}">Logout</a></li>  <!-- Fixed logout link -->
+              {% else %}
+                  <li><a href="{% url 'login' %}">Login</a></li>
+                  <li><a href="{% url 'register' %}">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
+        
 
     <!-- Main Content -->
     <div class="container mt-4">

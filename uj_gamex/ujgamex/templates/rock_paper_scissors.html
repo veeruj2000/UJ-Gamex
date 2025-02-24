@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Rock Paper Scissors{% endblock %}
+
+{% block content %}
+<!-- Custom Stylesheet for Rock Paper Scissors -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/rock_paper_scissors.css' %}">
+
+<div class="container">
+    <div class="scores">
+        <p>Computer :
+            <span id="computer_score">0</span>
+        </p>
+        <p>
+            You :
+            <span id="user_score">0</span>
+        </p>
+    </div>
+    <div class="weapons">
+        <button onclick="checker('rock')">
+            <i class="far fa-hand-rock"></i>
+            <span>Rock</span>
+        </button>
+        <button onclick="checker('paper')">
+            <i class="far fa-hand-paper"></i>
+            <span>Paper</span>
+        </button>
+        <button onclick="checker('scissor')">
+            <i class="far fa-hand-scissors"></i>
+            <span>Scissors</span>
+        </button>
+    </div>
+    <div class="details">
+        <p id="user_choice" style="color:#000"></p>
+        <p id="comp_choice" style="color:#000"></p>
+        <p id="result" style="color:#000"></p>
+    </div>
+</div>
+
+<!-- JavaScript File -->
+<script src="{% static 'js/rock_paper_scissors.js' %}"></script>
+<script>
+    let userScore = 0;
+    let computerScore = 0;
+
+    function playGame(userChoice) {
+        let choices = ["rock", "paper", "scissors"];
+        let computerChoice = choices[Math.floor(Math.random() * 3)];
+        let result = "";
+
+        if (userChoice === computerChoice) {
+            result = "draw";
+        } else if (
+            (userChoice === "rock" && computerChoice === "scissors") ||
+            (userChoice === "paper" && computerChoice === "rock") ||
+            (userChoice === "scissors" && computerChoice === "paper")
+        ) {
+            result = "win";
+            userScore++;
+        } else {
+            result = "lose";
+            computerScore++;
+        }
+
+        document.getElementById("user_score").innerText = userScore;
+        document.getElementById("computer_score").innerText = computerScore;
+
+        if (result !== "draw") {
+            fetch("{% url 'update_rps_score' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ result: result })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Score Updated:", data);
+            })
+            .catch(error => console.error("Error updating score:", error));
+        }
+    }
+</script>
+
+{% endblock %}

@@ -2,7 +2,6 @@
 from django.db import models
 
 # Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
 
 class Leaderboard(models.Model):
@@ -44,3 +43,19 @@ class Score(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Wins: {self.wins}, Losses: {self.losses}, Draws: {self.draws}"
+
+class RockPaperScissorsLeaderboard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    final_score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} - Wins: {self.wins}, Losses: {self.losses}"
+    
+class RPSLeaderboard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    final_score = models.IntegerField(null=True, blank=True)  # Ensure this line is present
+
+

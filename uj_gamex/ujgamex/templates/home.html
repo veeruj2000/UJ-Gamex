@@ -15,13 +15,25 @@
                 <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Tic-Tac-Toe">
                 <div class="card-body">
                     <h5 class="card-title">Tic-Tac-Toe</h5>
-                    <p class="card-text">Classic strategy game. Play against a friend!</p>
+                    <p class="card-text">Play with a cool strategy!</p>
                     <a href="{% url 'tic_tac_toe' %}" class="btn btn-primary">Play Now</a>
                 </div>
             </div>
         </div>
 
-        <!-- Game 2: Coming Soon (Placeholder) -->
+        <!-- Game 2: Rock-Paper-Scissors -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Rock-Paper-Scissors">
+                <div class="card-body">
+                    <h5 class="card-title">Rock-Paper-Scissors</h5>
+                    <p class="card-text">Let's Win it Faster!</p>
+                    <a href="{% url 'rock_paper_scissors' %}" class="btn btn-primary">Play Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 3: Coming Soon -->
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Coming Soon">
@@ -42,35 +54,9 @@
     {% endif %}
 
     <!-- Leaderboard Section -->
-    <div class="leaderboard mt-5">
-        <h2 class="text-center">🏆 Tic-Tac-Toe Leaderboard</h2>
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Rank</th>
-                    <th>Player</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>Final Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for player in leaderboard %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ player.user.username }}</td>
-                    <td>{{ player.wins }}</td>
-                    <td>{{ player.losses }}</td>
-                    <td>{{ player.final_score }}</td>
-
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No players have played yet.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="row mt-5">
+        {% include 'leaderboard.html' %}
     </div>
 </div>
+
 {% endblock %}
