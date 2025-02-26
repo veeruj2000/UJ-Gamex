@@ -1,0 +1,29 @@
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    gap: 10px;
+    justify-content: center; /* Center the grid */
+    max-width: 400px; /* Prevents stretching */
+    margin: 20px auto; /* Centering */
+}
+
+.card {
+    width: 80px;
+    height: 80px;
+    font-size: 30px;
+    text-align: center;
+    background: lightgray;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#win-message {
+    display: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: green;
+    margin-top: 20px;
+}

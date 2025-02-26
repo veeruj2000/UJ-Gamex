@@ -19,4 +19,6 @@ urlpatterns = [
     path("update_rps_score/", update_rps_score, name="update_rps_score"),
     path("get_rps_leaderboard/", get_rps_leaderboard, name="get_rps_leaderboard"),
     path('api/rps-leaderboard/', get_rps_leaderboard, name='get_rps_leaderboard'),
+    path("memory-card-game/", views.memory_card_game, name="memory_card_game"),
+    path("memory-leaderboard/", views.memory_leaderboard, name="memory_leaderboard"),
 ]

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Memory Cards{% endblock %}
+
+{% block content %}
+<h2>Memory Card Game</h2>
+<p>Flip the cards and match all pairs!</p>
+<div id="game-board"></div>
+<p id="score">Score: 0</p>
+<button onclick="restartGame()">Restart</button>
+
+<script src="{% static 'js/memory_card_game.js' %}"></script>
+{% endblock %}

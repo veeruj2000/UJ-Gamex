@@ -1,18 +1,21 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from .models import Leaderboard
-from .models import RPSLeaderboard
+from .models import GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, GameReview
 
-admin.site.register(RPSLeaderboard)
+# Get Django's User model
+User = get_user_model()
 
-class LeaderboardAdmin(admin.ModelAdmin):
-    list_display = ('user', 'wins', 'losses', 'final_score')
-
-admin.site.register(Leaderboard, LeaderboardAdmin)
-
-
-User = get_user_model()  # Get the default User model
-
-# Check if the User model is already registered before registering
-if not admin.site.is_registered(User):
+# Register User model if not already registered
+try:
     admin.site.register(User)
+except admin.sites.AlreadyRegistered:
+    pass  # Ignore if already registered
+
+# Register Leaderboards
+admin.site.register(GameLeaderboard)
+admin.site.register(TicTacToeLeaderboard)
+admin.site.register(RPSLeaderboard)
+admin.site.register(MemoryLeaderboard)
+
+# Register Game Reviews
+admin.site.register(GameReview)
