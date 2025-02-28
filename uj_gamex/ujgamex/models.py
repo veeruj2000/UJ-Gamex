@@ -75,6 +75,20 @@ class MemoryLeaderboard(models.Model):
         return f"{self.user.username} - Memory Card - Score: {self.final_score}"
 
 
+# ✅ Snake Game Model
+class SnakeLeaderboard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    date_played = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-score']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.score}"
+
+
+
 # ✅ Game Review Model (For all games)
 class GameReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

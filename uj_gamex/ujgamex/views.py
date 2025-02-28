@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.db.models import F
 from .models import (
     GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard,
-    MemoryLeaderboard, GameReview
+    MemoryLeaderboard, GameReview, SnakeLeaderboard
 )
 
 import random
@@ -247,3 +247,37 @@ def update_memory_score(request):
         return JsonResponse({"status": "success", "new_score": leaderboard.final_score})
     
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+# -------------------- SNAKE GAME --------------------
+
+@login_required
+def snake_game(request):
+    return render(request, "snake_game.html")
+
+@login_required
+def snake_leaderboard(request):
+    leaderboard = SnakeLeaderboard.objects.all()
+    return render(request, "snake_leaderboard.html", {"leaderboard": leaderboard})
+
+@login_required
+def update_snake_score(request):
+    """API to update Snake Game leaderboard."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user = request.user
+        score = data.get("score")
+
+        if not isinstance(score, int) or score < 0:
+            return JsonResponse({"status": "error", "message": "Invalid score"}, status=400)
+
+        leaderboard_entry, _ = SnakeLeaderboard.objects.get_or_create(user=user)
+
+        if score > leaderboard_entry.final_score:  # Only update if the new score is higher
+            leaderboard_entry.final_score = score
+            leaderboard_entry.save()
+
+        return JsonResponse({"status": "success", "new_score": leaderboard_entry.final_score})
+    
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+

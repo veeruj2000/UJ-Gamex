@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Snake Game{% endblock %}
+
+{% block content %}
+<h2>Snake Game</h2>
+<p>Control the snake with arrow keys. Eat the food and grow!</p>
+
+<button id="startButton">Start</button>
+<button id="pauseButton">Pause</button>
+<button onclick="restartGame()">Restart</button>
+
+<p id="score">Score: 0</p>
+<canvas id="gameCanvas"></canvas>
+
+<!-- ✅ Link to the leaderboard -->
+<div>
+    <p><a href="{% url 'snake_leaderboard' %}">View Leaderboard</a></p>
+</div>
+
+<script src="{% static 'js/snake_game.js' %}"></script>
+{% endblock %}
