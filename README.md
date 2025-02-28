@@ -1,5 +1,5 @@
-#UJ GameX
-An Online Gaming Platform 🎮🚀
+# UJ GameX
+### An Online Gaming Platform 🎮🚀
 UJ GameX is an interactive, web-based multiplayer gaming platform that provides a fun and engaging experience for users coming up with more days with a daily streak. The platform currently features Tic-Tac-Toe, Rock Paper Scissors, Memory Card Game, and Snake Game with a seamless user experience that includes authentication-based access, leaderboards, and real-time score tracking. The project is built using Django for backend and JavaScript for frontend, ensuring smooth gameplay and efficient data handling.
 
 📌 Key Highlights:
