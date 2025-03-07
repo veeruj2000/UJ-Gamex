@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.db.models import F
 from .models import (
     GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard,
-    MemoryLeaderboard, GameReview, SnakeLeaderboard
+    MemoryLeaderboard, GameReview, SnakeLeaderboard, ChessLeaderboard
 )
 
 import random
@@ -280,4 +280,40 @@ def update_snake_score(request):
     
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
+@login_required
+def chess_game(request):
+    """Render the Chess Game page."""
+    return render(request, "chess_game.html")
 
+@login_required
+def chess_leaderboard(request):
+    """Render the Chess Game leaderboard."""
+    leaderboard = ChessLeaderboard.objects.order_by('-final_score')
+    return render(request, "chess_leaderboard.html", {"leaderboard": leaderboard})
+
+@login_required
+def update_chess_score(request):
+    """API to update Chess leaderboard scores."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user = request.user
+        result = data.get("result")
+
+        if result not in ["win", "loss", "draw"]:
+            return JsonResponse({"status": "error", "message": "Invalid result"}, status=400)
+
+        leaderboard_entry, _ = ChessLeaderboard.objects.get_or_create(user=user)
+
+        if result == "win":
+            leaderboard_entry.wins += 1
+        elif result == "loss":
+            leaderboard_entry.losses += 1
+        elif result == "draw":
+            leaderboard_entry.draws += 1
+
+        leaderboard_entry.final_score = leaderboard_entry.wins - leaderboard_entry.losses
+        leaderboard_entry.save()
+
+        return JsonResponse({"status": "success", "new_score": leaderboard_entry.final_score})
+    
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)

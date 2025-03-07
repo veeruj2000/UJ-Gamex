@@ -4,6 +4,9 @@
 
 {% block content %}
 <div class="container text-center">
+    <div class="homelogo">
+        <img src="static/images/ujlogo.png" alt="Welcome to UJGAMEX!" style="width: 80%;">
+    </div>
     <h1 class="mt-4">Welcome to UJ Gamex!</h1>
     <p class="lead">Play exciting games right here!</p>
 
@@ -58,8 +61,20 @@
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- Game 5: Chess -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Chess">
+                <div class="card-body">
+                    <h5 class="card-title">Chess</h5>
+                    <p class="card-text">Play the Classic Strategy Game!</p>
+                    <a href="{% url 'chess_game' %}" class="btn btn-primary">Play Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Example Dynamic Data -->
     {% if user.is_authenticated %}
         <p class="mt-4">Hello, {{ user.username }}! You are logged in.</p>

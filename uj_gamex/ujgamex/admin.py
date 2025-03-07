@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from .models import GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, GameReview, SnakeLeaderboard
+from .models import GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, GameReview, SnakeLeaderboard, ChessLeaderboard
 
 # Get Django's User model
 User = get_user_model()
@@ -17,6 +17,7 @@ admin.site.register(TicTacToeLeaderboard)
 admin.site.register(RPSLeaderboard)
 admin.site.register(MemoryLeaderboard)
 admin.site.register(SnakeLeaderboard)
+admin.site.register(ChessLeaderboard)
 
 # Register Game Reviews
 admin.site.register(GameReview)

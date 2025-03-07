@@ -24,4 +24,7 @@ urlpatterns = [
     path("snake-game/", views.snake_game, name="snake_game"),
     path("snake-leaderboard/", views.snake_leaderboard, name="snake_leaderboard"),
     path("update-snake-score/", views.update_snake_score, name="update_snake_score"),
+    path("chess-game/", views.chess_game, name="chess_game"),
+    path("chess-leaderboard/", views.chess_leaderboard, name="chess_leaderboard"),
+    path("update-chess-score/", views.update_chess_score, name="update_chess_score"),
 ]

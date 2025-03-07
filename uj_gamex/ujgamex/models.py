@@ -98,3 +98,14 @@ class GameReview(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.game_name} Review"
+
+
+class ChessLeaderboard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    wins = models.IntegerField(default=0)
+    losses = models.IntegerField(default=0)
+    draws = models.IntegerField(default=0)
+    final_score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} - Score: {self.final_score}"
