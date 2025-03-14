@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.db.models import F
@@ -8,6 +9,7 @@ from .models import (
     GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard,
     MemoryLeaderboard, GameReview, SnakeLeaderboard, ChessLeaderboard
 )
+from django.utils.timezone import now
 
 import random
 import json
@@ -280,40 +282,50 @@ def update_snake_score(request):
     
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
+#---------------------- Chess Game ---------------------
+
+
 @login_required
 def chess_game(request):
-    """Render the Chess Game page."""
-    return render(request, "chess_game.html")
+    return render(request, "chess.html")  # Ensure chess.html exists in `templates/`
 
 @login_required
-def chess_leaderboard(request):
-    """Render the Chess Game leaderboard."""
-    leaderboard = ChessLeaderboard.objects.order_by('-final_score')
-    return render(request, "chess_leaderboard.html", {"leaderboard": leaderboard})
-
-@login_required
+@csrf_exempt
 def update_chess_score(request):
-    """API to update Chess leaderboard scores."""
     if request.method == "POST":
         data = json.loads(request.body)
-        user = request.user
-        result = data.get("result")
-
-        if result not in ["win", "loss", "draw"]:
-            return JsonResponse({"status": "error", "message": "Invalid result"}, status=400)
-
-        leaderboard_entry, _ = ChessLeaderboard.objects.get_or_create(user=user)
-
+        result = data.get("result")  # 'win' or 'loss'
+        
+        leaderboard, created = ChessLeaderboard.objects.get_or_create(player=request.user)
+        
         if result == "win":
-            leaderboard_entry.wins += 1
+            leaderboard.wins += 1
         elif result == "loss":
-            leaderboard_entry.losses += 1
-        elif result == "draw":
-            leaderboard_entry.draws += 1
-
-        leaderboard_entry.final_score = leaderboard_entry.wins - leaderboard_entry.losses
-        leaderboard_entry.save()
-
-        return JsonResponse({"status": "success", "new_score": leaderboard_entry.final_score})
+            leaderboard.losses += 1
+        
+        leaderboard.score = leaderboard.wins - leaderboard.losses
+        leaderboard.save()
+        
+        return JsonResponse({"message": "Score updated successfully!"})
     
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+def chess_leaderboard(request):
+    leaderboard = ChessLeaderboard.objects.order_by("-score")
+    leaderboard_data = [
+        {
+            "player": entry.player.username,
+            "wins": entry.wins,
+            "losses": entry.losses,
+            "score": entry.score,
+        }
+        for entry in leaderboard
+    ]
+    return JsonResponse(leaderboard_data, safe=False)
+
+
+#-------------------- Ludo Game Page --------------------
+
+def ludo_game(request):
+    """ Renders the Ludo game page """
+    return render(request, "ludo.html")

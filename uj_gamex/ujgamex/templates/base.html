@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/png" href="static/images/ujlogo1.png">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/ujlogo1.png' %}">
     <title>{% block title %}My Django App{% endblock %}</title>
 
     <!-- Bootstrap (CDN) -->
@@ -21,7 +21,7 @@
         <nav class="navbar">
           <div class="brand-title">
             <a href="{% url 'home' %}">
-              <img class="ujlogo" src="static/images/ujlogo.png" alt="ujlogo">
+              <img class="ujlogo" src="{% static 'images/ujlogo.png' %}" alt="ujlogo">
             </a>
           </div>
           <a href="#" class="toggle-button">

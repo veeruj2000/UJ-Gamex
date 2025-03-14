@@ -24,27 +24,84 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function aiMove() {
         if (!gameActive) return;
-
+    
         let emptyCells = board
             .map((val, idx) => val === "" ? idx : null)
             .filter(val => val !== null);
-
+    
         if (emptyCells.length === 0) return;
-
-        let aiChoice = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    
+        let bestScore = -Infinity;
+        let bestMove;
+        
+        // Use Minimax to find the best move
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === "") {
+                board[i] = "O";
+                let score = minimax(board, 0, false);
+                board[i] = "";
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = i;
+                }
+            }
+        }
+    
+        let aiChoice;
+        
+        // 80% chance AI picks the best move, 20% chance it picks a random move
+        if (Math.random() < 0.8) {
+            aiChoice = bestMove;
+        } else {
+            aiChoice = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+    
+        // AI makes the chosen move
         board[aiChoice] = "O";
         cells[aiChoice].textContent = "O";
-
-        console.log(`AI played at index: ${aiChoice}`);
-
+    
         let winner = checkWinner(board);
         if (winner) {
             endGame(winner);
         } else {
-            currentPlayer = "X"; // Switch back to the user
+            currentPlayer = "X";
             statusDisplay.textContent = "Your turn!";
         }
     }
+    
+
+    const scores = { X: -10, O: 10, draw: 0 };
+
+function minimax(board, depth, isMaximizing) {
+    let winner = checkWinner(board);
+    if (winner) return scores[winner];
+
+    if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === "") {
+                board[i] = "O";
+                let score = minimax(board, depth + 1, false);
+                board[i] = "";
+                bestScore = Math.max(score, bestScore);
+            }
+        }
+        return bestScore;
+    } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === "") {
+                board[i] = "X";
+                let score = minimax(board, depth + 1, true);
+                board[i] = "";
+                bestScore = Math.min(score, bestScore);
+            }
+        }
+        return bestScore;
+    }
+}
+
+    
 
     function handleClick(event) {
         const index = parseInt(event.target.id); // Convert string ID to integer

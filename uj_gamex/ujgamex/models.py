@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F
+from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 
 # ✅ Generic Leaderboard Model for all games
 class GameLeaderboard(models.Model):
@@ -26,19 +28,19 @@ class GameLeaderboard(models.Model):
         return f"{self.user.username} - {self.game_name} - Score: {self.final_score}"
 
 
-# ✅ Tic-Tac-Toe Leaderboard Model
 class TicTacToeLeaderboard(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
-    draws = models.IntegerField(default=0)  # Added this field
+    draws = models.IntegerField(default=0)
 
     @property
     def final_score(self):
-        return self.wins - self.losses  # Modify if draws should affect the score
+        return self.wins - self.losses
 
     def __str__(self):
         return f"{self.user.username} - Tic-Tac-Toe - Score: {self.final_score}"
+
 
 
 
@@ -99,13 +101,11 @@ class GameReview(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.game_name} Review"
 
-
 class ChessLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    player = models.ForeignKey(User, on_delete=models.CASCADE)
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
-    draws = models.IntegerField(default=0)
-    final_score = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)  # Score = Wins - Losses
 
     def __str__(self):
-        return f"{self.user.username} - Score: {self.final_score}"
+        return f"{self.player.username} - Wins: {self.wins}, Losses: {self.losses}, Score: {self.score}"
