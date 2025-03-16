@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Snake Game Leaderboard{% endblock %}
+
+{% block content %}
+<h2>Snake Game Leaderboard</h2>
+
+<!-- ✅ Improved table structure -->
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Rank</th>
+        <th>Player</th>
+        <th>High Score</th>
+    </tr>
+    {% for entry in leaderboard %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ entry.user.username }}</td>
+        <td>{{ entry.final_score }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3">No scores yet. Play and set a record!</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- ✅ Back to Game -->
+<p><a href="{% url 'snake_game' %}">Play Snake Game</a></p>
+
+{% endblock %}
