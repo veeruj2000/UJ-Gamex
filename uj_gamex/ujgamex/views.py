@@ -5,10 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.db.models import F
-from .models import (
-    GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard,
-    MemoryLeaderboard, GameReview, SnakeLeaderboard, ChessLeaderboard
-)
+from .models import TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, GameReview, SnakeLeaderboard, LudoMatchLeaderboard
 from django.utils.timezone import now
 
 import random
@@ -18,17 +15,36 @@ import json
 # -------------------- HOME & BASIC PAGES --------------------
 
 def home(request):
-    """ Render the home page with leaderboards and game scores. """
-    scores = GameLeaderboard.objects.order_by("-wins", "losses")[:5]  # Fetch top 5 scores
-    reviews = GameReview.objects.all()  # Fetch all reviews
-    tic_tac_toe_leaderboard = TicTacToeLeaderboard.objects.order_by('-wins', 'losses')
-    rps_leaderboard = RPSLeaderboard.objects.order_by('-wins', 'losses')
+    """ Render the home page with leaderboards. """
+    tic_tac_toe_leaderboard = sorted(
+    TicTacToeLeaderboard.objects.all(),
+    key=lambda player: player.wins - player.losses,  # Calculate final_score manually
+    reverse=True
+)[:10]
+
+    rps_leaderboard = sorted(
+    RPSLeaderboard.objects.all(),
+    key=lambda player: player.wins - player.losses,
+    reverse=True
+)[:10]
+
+    memory_leaderboard = sorted(
+    MemoryLeaderboard.objects.all(),
+    key=lambda player: player.time_taken  # Lower time is better
+)[:10]
+
+    snake_leaderboard = sorted(
+    SnakeLeaderboard.objects.all(),
+    key=lambda player: player.score,
+    reverse=True
+)[:10]
+
 
     return render(request, 'home.html', {
-        'scores': scores,
-        'reviews': reviews,
         'tic_tac_toe_leaderboard': tic_tac_toe_leaderboard,
-        'rps_leaderboard': rps_leaderboard
+        'rps_leaderboard': rps_leaderboard,
+        'memory_leaderboard': memory_leaderboard,
+        'snake_leaderboard': snake_leaderboard
     })
 
 
@@ -36,6 +52,35 @@ def about(request):
     """ Render the About page. """
     return render(request, 'about.html')
 
+# -------------------- Game Pages --------------------
+
+@login_required
+def tic_tac_toe(request):
+    """ Render the Tic Tac Toe game page. """
+    return render(request, "tic_tac_toe.html")
+
+@login_required
+def rock_paper_scissors(request):
+    """ Render the Rock Paper Scissors game page. """
+    return render(request, 'rock_paper_scissors.html')
+
+@login_required
+def memory_card_game(request):
+    """ Render the Memory Card Game page. """
+    return render(request, "memory_card_game.html")
+
+@login_required
+def snake_game(request):
+    return render(request, "snake_game.html")
+
+@login_required
+def chess_game(request):
+    return render(request, "chess.html")
+
+@login_required
+def ludo_game(request):
+    """ Renders the Ludo game page """
+    return render(request, "ludo.html")
 
 # -------------------- AUTHENTICATION --------------------
 
@@ -70,74 +115,7 @@ def logout_user(request):
     return redirect("home")
 
 
-# -------------------- GAMES --------------------
-
-@login_required
-def tic_tac_toe(request):
-    """ Render the Tic Tac Toe game page. """
-    return render(request, "tic_tac_toe.html")
-
-
-# -------------------- SCORE & LEADERBOARD --------------------
-
-@login_required
-def update_score(request):
-    """ Update the user's score based on the game result. """
-    if request.method == "POST":
-        result = request.POST.get("result")  # Expected values: 'win', 'loss', 'draw'
-        user = request.user
-
-        if result not in ["win", "loss", "draw"]:
-            return JsonResponse({"status": "error", "message": "Invalid result"}, status=400)
-
-        # ✅ Update Game Leaderboard
-        user_score, _ = GameLeaderboard.objects.get_or_create(user=user, game_name="General")
-        GameLeaderboard.objects.filter(user=user, game_name="General").update(
-            wins=F("wins") + (1 if result == "win" else 0),
-            losses=F("losses") + (1 if result == "loss" else 0),
-            draws=F("draws") + (1 if result == "draw" else 0),
-        )
-
-        return JsonResponse({"status": "success", "message": "Score updated successfully!"})
-
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
-
-
-@login_required
-def update_leaderboard(request, result):
-    """ Update the Tic-Tac-Toe leaderboard when a user wins or loses. """
-    user = request.user
-
-    if result not in ["win", "loss"]:
-        return JsonResponse({"status": "error", "message": "Invalid result"}, status=400)
-
-    TicTacToeLeaderboard.objects.get_or_create(user=user)
-    TicTacToeLeaderboard.objects.filter(user=user).update(
-        wins=F("wins") + (1 if result == "win" else 0),
-        losses=F("losses") + (1 if result == "loss" else 0),
-    )
-
-    return JsonResponse({"status": "success", "message": "Leaderboard updated successfully!"})
-
-
-def leaderboard_view(request):
-    """ Display the leaderboards for different games. """
-    tic_tac_toe_leaderboard = TicTacToeLeaderboard.objects.order_by('-wins', 'losses')
-    rps_leaderboard = RPSLeaderboard.objects.order_by('-wins', 'losses')
-
-    return render(request, "leaderboard.html", {
-        "tic_tac_toe_leaderboard": tic_tac_toe_leaderboard,
-        "rps_leaderboard": rps_leaderboard
-    })
-
-
-# -------------------- ROCK PAPER SCISSORS --------------------
-
-@login_required
-def rock_paper_scissors(request):
-    """ Render the Rock Paper Scissors game page. """
-    return render(request, 'rock_paper_scissors.html')
-
+# -------------------- ROCK PAPER SCISSORS - Game Play --------------------
 
 @login_required
 def play_rock_paper_scissors(request, player_choice):
@@ -167,58 +145,39 @@ def play_rock_paper_scissors(request, player_choice):
     return JsonResponse({"result": result})
 
 
-@login_required
-def memory_card_game(request):
-    """ Render the Memory Card Game page. """
-    return render(request, "memory_card_game.html")
-
+# -------------------- SCORE & LEADERBOARD --------------------
 
 @login_required
 def memory_leaderboard(request):
     """ Fetch and display the Memory Card Game leaderboard. """
-    leaderboard = MemoryLeaderboard.objects.order_by('-final_score')[:10]
+    leaderboard = MemoryLeaderboard.objects.order_by("time_taken")[:10]  # Lowest time is better
     return render(request, "memory_leaderboard.html", {"leaderboard": leaderboard})
 
-
-# -------------------- ROCK PAPER SCISSORS API --------------------
-
 @login_required
-def update_rps_score(request):
-    """ API to update Rock Paper Scissors scores. """
-    if request.method == "POST":
-        data = json.loads(request.body)
-        user = request.user
-        result = data.get("result")
-
-        leaderboard, _ = RPSLeaderboard.objects.get_or_create(user=user)
-
-        if result == "win":
-            leaderboard.wins += 1
-        elif result == "lose":
-            leaderboard.losses += 1
-
-        leaderboard.final_score = leaderboard.wins - leaderboard.losses
-        leaderboard.save()
-
-        return JsonResponse({"success": True, "wins": leaderboard.wins, "losses": leaderboard.losses, "final_score": leaderboard.final_score})
-    
-    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
-
+def snake_leaderboard(request):
+    """ Fetch and display the Snakex game leaderboard. """
+    leaderboard = SnakeLeaderboard.objects.order_by("-score")[:10]  # Highest score first
+    return render(request, "snake_leaderboard.html", {"leaderboard": leaderboard})
 
 @login_required
 def rock_paper_scissors_leaderboard(request):
     """ Render the Rock Paper Scissors leaderboard page. """
-    leaderboard = RPSLeaderboard.objects.order_by('-final_score')[:10]
-    return render(request, 'rock_paper_scissors_leaderboard.html', {"leaderboard": leaderboard})
+    leaderboard = RPSLeaderboard.objects.order_by('-final_score', '-wins')[:10]  # Top 10 players sorted by score
 
+    return render(request, 'rock_paper_scissors_leaderboard.html', {
+        "leaderboard": leaderboard
+    })
 
-def get_rps_leaderboard(request):
-    """ API to fetch Rock Paper Scissors leaderboard. """
-    leaderboard_data = RPSLeaderboard.objects.order_by('-final_score')[:10]
+# -------------------- TIC-TAC-TOE LEADERBOARD --------------------
+
+@login_required
+def get_tic_tac_toe_leaderboard(request):
+    """ API to fetch Tic-Tac-Toe leaderboard dynamically. """
+    leaderboard_data = TicTacToeLeaderboard.objects.order_by('-wins', 'losses')[:10]
     leaderboard = [
         {
             "rank": index + 1,
-            "player": entry.user.username,
+            "user": entry.user.username,
             "wins": entry.wins,
             "losses": entry.losses,
             "final_score": entry.final_score,
@@ -227,7 +186,102 @@ def get_rps_leaderboard(request):
     ]
     return JsonResponse({"leaderboard": leaderboard})
 
+
+@login_required
+@csrf_exempt
+def update_tic_tac_toe_score(request):
+    """ Update Tic-Tac-Toe Leaderboard """
+    if request.method == "POST":
+        data = json.loads(request.body)
+        result = data.get("result")  # 'win', 'loss', 'draw'
+        user = request.user
+
+        leaderboard_entry, _ = TicTacToeLeaderboard.objects.get_or_create(user=user)
+
+        if result == "win":
+            leaderboard_entry.wins += 1
+        elif result == "loss":
+            leaderboard_entry.losses += 1
+        elif result == "draw":
+            leaderboard_entry.draws += 1
+
+        leaderboard_entry.save()
+
+        return JsonResponse({"message": "Score updated successfully!"})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+# -------------------- ROCK-PAPER-SCISSORS LEADERBOARD --------------------
+
+from django.views.decorators.csrf import csrf_exempt
+
+
+
+@csrf_exempt
+def update_rps_score(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            result = data.get("result")
+
+            # Debugging: Check if data is received
+            print("Received data:", data)
+
+            if result == "win":
+                request.user.profile.rps_wins += 1
+            elif result == "lose":
+                request.user.profile.rps_losses += 1
+
+            request.user.profile.save()
+            return JsonResponse({"message": "Score updated successfully"})
+        except Exception as e:
+            print("Error:", str(e))
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+@login_required
+def get_rps_leaderboard(request):
+    """ API to fetch Rock Paper Scissors leaderboard. """
+    leaderboard_data = RPSLeaderboard.objects.all()
+
+    leaderboard = sorted(
+        leaderboard_data,
+        key=lambda x: (x.wins - x.losses, x.wins),
+        reverse=True
+    )[:10]  # Sort by computed final score and then wins
+
+    leaderboard_response = [
+        {
+            "rank": index + 1,
+            "player": entry.user.username,
+            "wins": entry.wins,
+            "losses": entry.losses,
+            "draws": entry.draws,
+            "final_score": entry.wins - entry.losses,  # Compute score dynamically
+        }
+        for index, entry in enumerate(leaderboard)
+    ]
+
+    return JsonResponse({"leaderboard": leaderboard_response})
+
+
 # -------------------- MEMORY CARD GAME LEADERBOARD --------------------
+
+@login_required
+def get_memory_leaderboard(request):
+    """ API to fetch Memory Card Game leaderboard dynamically. """
+    leaderboard_data = MemoryLeaderboard.objects.order_by("time_taken")[:10]  # Rank by least time
+    leaderboard = [
+        {
+            "rank": index + 1,
+            "user": entry.user.username,
+            "time_taken": entry.time_taken
+        }
+        for index, entry in enumerate(leaderboard_data)
+    ]
+    return JsonResponse({"leaderboard": leaderboard})
 
 @login_required
 def update_memory_score(request):
@@ -235,31 +289,36 @@ def update_memory_score(request):
     if request.method == "POST":
         data = json.loads(request.body)
         user = request.user
-        score = data.get("score")
+        time_taken = data.get("time_taken")
 
-        if not isinstance(score, int) or score < 0:
-            return JsonResponse({"status": "error", "message": "Invalid score"}, status=400)
+        if not isinstance(time_taken, (int, float)) or time_taken <= 0:
+            return JsonResponse({"status": "error", "message": "Invalid time"}, status=400)
 
-        leaderboard, _ = MemoryLeaderboard.objects.get_or_create(user=user)
+        entry, _ = MemoryLeaderboard.objects.get_or_create(user=user)
+        if time_taken < entry.time_taken:  # Only update if the new time is lower
+            entry.time_taken = time_taken
+            entry.save()
 
-        if score > leaderboard.final_score:  # Only update if the new score is higher
-            leaderboard.final_score = score
-            leaderboard.save()
-
-        return JsonResponse({"status": "success", "new_score": leaderboard.final_score})
+        return JsonResponse({"status": "success", "new_time": entry.time_taken})
     
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
-# -------------------- SNAKE GAME --------------------
+# -------------------- SNAKE GAME LEADERBOARD --------------------
 
 @login_required
-def snake_game(request):
-    return render(request, "snake_game.html")
+def get_snake_leaderboard(request):
+    """API to fetch Snake leaderboard."""
+    leaderboard_data = SnakeLeaderboard.objects.order_by("-score")[:10]
+    leaderboard = [
+        {
+            "rank": index + 1,
+            "player": entry.user.username,
+            "score": entry.score,
+        }
+        for index, entry in enumerate(leaderboard_data)
+    ]
+    return JsonResponse({"leaderboard": leaderboard})
 
-@login_required
-def snake_leaderboard(request):
-    leaderboard = SnakeLeaderboard.objects.all()
-    return render(request, "snake_leaderboard.html", {"leaderboard": leaderboard})
 
 @login_required
 def update_snake_score(request):
@@ -272,23 +331,60 @@ def update_snake_score(request):
         if not isinstance(score, int) or score < 0:
             return JsonResponse({"status": "error", "message": "Invalid score"}, status=400)
 
-        leaderboard_entry, _ = SnakeLeaderboard.objects.get_or_create(user=user)
+        entry, _ = SnakeLeaderboard.objects.get_or_create(user=user)
+        if score > entry.score:  # Only update if the new score is higher
+            entry.score = score
+            entry.save()
 
-        if score > leaderboard_entry.final_score:  # Only update if the new score is higher
-            leaderboard_entry.final_score = score
-            leaderboard_entry.save()
-
-        return JsonResponse({"status": "success", "new_score": leaderboard_entry.final_score})
+        return JsonResponse({"status": "success", "new_score": entry.score})
     
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
-#---------------------- Chess Game ---------------------
+# -------------------- LUDO LEADERBOARD (PER GAME) --------------------
+
+@login_required
+def update_ludo_leaderboard(request):
+    """ Updates the Ludo leaderboard for a single match (resets after each game). """
+    if request.method == "POST":
+        data = json.loads(request.body)
+        leaderboard_entries = data.get("leaderboard", [])  # Expected [{user, score}]
+
+        # Clear old data (since Ludo leaderboard resets every match)
+        LudoMatchLeaderboard.objects.all().delete()
+
+        for entry in leaderboard_entries:
+            LudoMatchLeaderboard.objects.create(user=entry["user"], score=entry["score"])  # ✅ Changed `player` to `user`
+
+        return JsonResponse({"status": "success", "message": "Ludo leaderboard updated!"})
 
 
 @login_required
-def chess_game(request):
-    return render(request, "chess.html")  # Ensure chess.html exists in `templates/`
+def get_ludo_leaderboard(request):
+    """ Fetches the temporary Ludo leaderboard for the current match. """
+    leaderboard = LudoMatchLeaderboard.objects.order_by('-score')
+    leaderboard_data = [{"user": entry.user.username, "score": entry.score} for entry in leaderboard]  # ✅ Changed `player` to `user`
+    return JsonResponse({"leaderboard": leaderboard_data})
 
+
+# -------------------- GAME REVIEW --------------------
+
+@login_required
+def submit_review(request):
+    """ Allows users to submit game reviews. """
+    if request.method == "POST":
+        data = json.loads(request.body)
+        game_name = data.get("game_name")
+        review_text = data.get("review_text")
+
+        if not game_name or not review_text:
+            return JsonResponse({"status": "error", "message": "Missing game name or review text"}, status=400)
+
+        GameReview.objects.create(user=request.user, game_name=game_name, review_text=review_text)
+        return JsonResponse({"status": "success", "message": "Review submitted!"})
+
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+#---------------------- Chess Game ---------------------
 @login_required
 @csrf_exempt
 def update_chess_score(request):
@@ -324,8 +420,3 @@ def chess_leaderboard(request):
     return JsonResponse(leaderboard_data, safe=False)
 
 
-#-------------------- Ludo Game Page --------------------
-
-def ludo_game(request):
-    """ Renders the Ludo game page """
-    return render(request, "ludo.html")

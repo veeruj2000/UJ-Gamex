@@ -50,3 +50,47 @@
     </div>
   </nav>
 
+
+
+
+
+
+leaderboard.js:
+  document.addEventListener("DOMContentLoaded", function () {
+    loadLeaderboard("tic-tac-toe", "get_tic_tac_toe_leaderboard", ["rank", "user", "wins", "losses", "final_score"]);
+    loadLeaderboard("rps", "get_rps_leaderboard", ["rank", "player", "wins", "losses", "draws", "final_score"]);
+    loadLeaderboard("memory", "get_memory_leaderboard", ["rank", "user", "time_taken"]);
+    loadLeaderboard("snake", "snake_leaderboard", ["rank", "player", "score"]);
+    loadLeaderboard("ludo", "get_ludo_leaderboard", ["user", "score"]);
+});
+
+/**
+ * Loads the leaderboard dynamically based on provided IDs and API endpoints.
+ * @param {string} gameId - The table ID for the leaderboard.
+ * @param {string} apiEndpoint - The Django API URL name for fetching data.
+ * @param {Array} fields - The fields expected in the JSON response.
+ */
+function loadLeaderboard(gameId, apiEndpoint, fields) {
+    fetch(`/${apiEndpoint}/`)
+        .then(response => response.json())
+        .then(data => {
+            let leaderboardTable = document.getElementById(`${gameId}-leaderboard`);
+            if (!leaderboardTable) return; // Ensure the table exists in the HTML
+
+            leaderboardTable.innerHTML = ""; // Clear old data
+
+            if (!data.leaderboard || data.leaderboard.length === 0) {
+                leaderboardTable.innerHTML = `<tr><td colspan="${fields.length}" class="text-center">No players have played yet.</td></tr>`;
+            } else {
+                data.leaderboard.forEach(entry => {
+                    let row = "<tr>";
+                    fields.forEach(field => {
+                        row += `<td>${entry[field] !== undefined ? entry[field] : "-"}</td>`;
+                    });
+                    row += "</tr>";
+                    leaderboardTable.innerHTML += row;
+                });
+            }
+        })
+        .catch(error => console.error(`Error loading ${gameId} leaderboard:`, error));
+}

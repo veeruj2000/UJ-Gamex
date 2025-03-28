@@ -41,48 +41,5 @@
 
 <!-- JavaScript File -->
 <script src="{% static 'js/rock_paper_scissors.js' %}"></script>
-<script>
-    let userScore = 0;
-    let computerScore = 0;
-
-    function playGame(userChoice) {
-        let choices = ["rock", "paper", "scissors"];
-        let computerChoice = choices[Math.floor(Math.random() * 3)];
-        let result = "";
-
-        if (userChoice === computerChoice) {
-            result = "draw";
-        } else if (
-            (userChoice === "rock" && computerChoice === "scissors") ||
-            (userChoice === "paper" && computerChoice === "rock") ||
-            (userChoice === "scissors" && computerChoice === "paper")
-        ) {
-            result = "win";
-            userScore++;
-        } else {
-            result = "lose";
-            computerScore++;
-        }
-
-        document.getElementById("user_score").innerText = userScore;
-        document.getElementById("computer_score").innerText = computerScore;
-
-        if (result !== "draw") {
-            fetch("{% url 'update_rps_score' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}"
-                },
-                body: JSON.stringify({ result: result })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Score Updated:", data);
-            })
-            .catch(error => console.error("Error updating score:", error));
-        }
-    }
-</script>
 
 {% endblock %}

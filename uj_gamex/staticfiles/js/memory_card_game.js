@@ -1,27 +1,4 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Card Game</title>
-    <link rel="stylesheet" href="{% static 'style3.css' %}">
-</head>
-
-<body>
-    <h1>Memory Card Game</h1>
-    <div class="game-container">
-        <div class="info-panel">
-            <p>Moves: <span id="moves">0</span></p>
-            <p>Time Left: <span id="timer">60</span> seconds</p>
-        </div>
-        <div class="game-board" id="gameBoard"></div>
-        <button id="reset">Restart</button>
-        <div id="win-message" class="hidden">🎉 Congratulations! You won the game! 🎉</div>
-    </div>
-    <script>
-        const cardsArray = ['🍎', '🍌', '🍇', '🍉', '🍎', '🍌', '🍇', '🍉', '🍓', '🥑', '🍓', '🥑', '🍍', '🍒', '🍍','🍒'];
+const cardsArray = ['🍎', '🍌', '🍇', '🍉', '🍎', '🍌', '🍇', '🍉', '🍓', '🥑', '🍓', '🥑', '🍍', '🍒', '🍍','🍒'];
         let gameBoard = document.getElementById('gameBoard');
         let movesCount = document.getElementById('moves');
         let timerDisplay = document.getElementById('timer');
@@ -30,7 +7,7 @@
         let flippedCards = [];
         let moves = 0;
         let matchedPairs = 0;
-        let timeLeft = 60;
+        let timeLeft = 100;
         let timer;
 
         // Shuffle function
@@ -40,7 +17,7 @@
 
         // Start the timer
         function startTimer() {
-            timeLeft = 60;
+            timeLeft = 100;
             timerDisplay.textContent = timeLeft + "s";
             clearInterval(timer);
 
@@ -133,7 +110,3 @@
 
         // Start game on load
         initGame();
-    </script>
-</body>
-
-</html>

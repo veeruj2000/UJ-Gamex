@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from .models import GameLeaderboard, TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, GameReview, SnakeLeaderboard, ChessLeaderboard
+from .models import (
+    TicTacToeLeaderboard, RPSLeaderboard, MemoryLeaderboard, SnakeLeaderboard, LudoMatchLeaderboard, GameReview)
 
 # Get Django's User model
 User = get_user_model()
@@ -12,12 +13,11 @@ except admin.sites.AlreadyRegistered:
     pass  # Ignore if already registered
 
 # Register Leaderboards
-admin.site.register(GameLeaderboard)
 admin.site.register(TicTacToeLeaderboard)
 admin.site.register(RPSLeaderboard)
 admin.site.register(MemoryLeaderboard)
 admin.site.register(SnakeLeaderboard)
-admin.site.register(ChessLeaderboard)
+admin.site.register(LudoMatchLeaderboard)
 
 # Register Game Reviews
 admin.site.register(GameReview)

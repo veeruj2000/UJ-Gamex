@@ -4,6 +4,7 @@
 {% block title %}Snake Game{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/snake_game.css' %}">
 <h2>Snake Game</h2>
 <p>Control the snake with arrow keys. Eat the food and grow!</p>
 
@@ -13,11 +14,6 @@
 
 <p id="score">Score: 0</p>
 <canvas id="gameCanvas"></canvas>
-
-<!-- ✅ Link to the leaderboard -->
-<div>
-    <p><a href="{% url 'snake_leaderboard' %}">View Leaderboard</a></p>
-</div>
 
 <script src="{% static 'js/snake_game.js' %}"></script>
 {% endblock %}

@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cells = document.querySelectorAll(".cell");
     const statusDisplay = document.getElementById("status");
     const resetButton = document.getElementById("reset");
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
     function checkWinner(board) {
         const winningCombinations = [
@@ -16,50 +17,26 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let combo of winningCombinations) {
             let [a, b, c] = combo;
             if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-                return board[a]; // Return "X" or "O"
+                return board[a]; // "X" or "O" wins
             }
         }
-        return board.includes("") ? null : "draw"; // Return "draw" if no moves left
+        return board.includes("") ? null : "draw"; // "draw" if no moves left
     }
 
     function aiMove() {
         if (!gameActive) return;
-    
+
         let emptyCells = board
-            .map((val, idx) => val === "" ? idx : null)
+            .map((val, idx) => (val === "" ? idx : null))
             .filter(val => val !== null);
-    
+
         if (emptyCells.length === 0) return;
-    
-        let bestScore = -Infinity;
-        let bestMove;
+
+        let bestMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
         
-        // Use Minimax to find the best move
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] === "") {
-                board[i] = "O";
-                let score = minimax(board, 0, false);
-                board[i] = "";
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMove = i;
-                }
-            }
-        }
-    
-        let aiChoice;
-        
-        // 80% chance AI picks the best move, 20% chance it picks a random move
-        if (Math.random() < 0.8) {
-            aiChoice = bestMove;
-        } else {
-            aiChoice = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-        }
-    
-        // AI makes the chosen move
-        board[aiChoice] = "O";
-        cells[aiChoice].textContent = "O";
-    
+        board[bestMove] = "O";
+        cells[bestMove].textContent = "O";
+
         let winner = checkWinner(board);
         if (winner) {
             endGame(winner);
@@ -68,50 +45,14 @@ document.addEventListener("DOMContentLoaded", function () {
             statusDisplay.textContent = "Your turn!";
         }
     }
-    
-
-    const scores = { X: -10, O: 10, draw: 0 };
-
-function minimax(board, depth, isMaximizing) {
-    let winner = checkWinner(board);
-    if (winner) return scores[winner];
-
-    if (isMaximizing) {
-        let bestScore = -Infinity;
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] === "") {
-                board[i] = "O";
-                let score = minimax(board, depth + 1, false);
-                board[i] = "";
-                bestScore = Math.max(score, bestScore);
-            }
-        }
-        return bestScore;
-    } else {
-        let bestScore = Infinity;
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] === "") {
-                board[i] = "X";
-                let score = minimax(board, depth + 1, true);
-                board[i] = "";
-                bestScore = Math.min(score, bestScore);
-            }
-        }
-        return bestScore;
-    }
-}
-
-    
 
     function handleClick(event) {
-        const index = parseInt(event.target.id); // Convert string ID to integer
+        const index = parseInt(event.target.id);
 
         if (!gameActive || board[index] !== "") return;
 
         board[index] = "X";
         event.target.textContent = "X";
-
-        console.log(`Player moved at index: ${index}`);
 
         let winner = checkWinner(board);
         if (winner) {
@@ -119,7 +60,7 @@ function minimax(board, depth, isMaximizing) {
         } else {
             currentPlayer = "O";
             statusDisplay.textContent = "AI is playing...";
-            setTimeout(aiMove, 500); // Delay AI move slightly
+            setTimeout(aiMove, 700); // Delay AI move slightly for effect
         }
     }
 
@@ -128,14 +69,14 @@ function minimax(board, depth, isMaximizing) {
         if (winner === "draw") {
             statusDisplay.textContent = "It's a draw!";
         } else {
-            statusDisplay.textContent = (winner === "X") ? "You win!" : "AI wins!";
+            statusDisplay.textContent = winner === "X" ? "You win! 🏆" : "AI wins! 😞";
         }
 
-        // Send the result to the backend
-        fetch("/update_score/", {
+        // ✅ Send result to Django backend
+        fetch("/update-tic-tac-toe-score/", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRFToken": getCSRFToken() },
-            body: `result=${winner === "X" ? "win" : winner === "O" ? "loss" : "draw"}`
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+            body: JSON.stringify({ result: winner === "X" ? "win" : winner === "O" ? "loss" : "draw" })
         }).then(response => response.json())
         .then(data => console.log("Score updated:", data))
         .catch(error => console.error("Error updating score:", error));
@@ -143,14 +84,12 @@ function minimax(board, depth, isMaximizing) {
 
     function resetGame() {
         board = ["", "", "", "", "", "", "", "", ""];
-        cells.forEach(cell => cell.textContent = "");
+        cells.forEach(cell => {
+            cell.textContent = "";
+        });
         gameActive = true;
         currentPlayer = "X";
         statusDisplay.textContent = "Player X's Turn";
-    }
-
-    function getCSRFToken() {
-        return document.querySelector("[name=csrfmiddlewaretoken]").value;
     }
 
     cells.forEach(cell => cell.addEventListener("click", handleClick));

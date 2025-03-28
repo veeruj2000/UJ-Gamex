@@ -2,93 +2,81 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F
 from django.utils.timezone import now
-from django.contrib.auth import get_user_model
 
-# ✅ Generic Leaderboard Model for all games
-class GameLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to Django's User model
-    game_name = models.CharField(max_length=50)  # Store game type
-    wins = models.IntegerField(default=0)  # Track wins
-    losses = models.IntegerField(default=0)  # Track losses
-    draws = models.IntegerField(default=0)  # Track draws
-
-    @property
-    def final_score(self):
-        return self.wins - self.losses  # Calculate final score
-
-    def update_score(self, result):
-        if result == "win":
-            self.wins = F("wins") + 1
-        elif result == "loss":
-            self.losses = F("losses") + 1
-        # Removed the faulty draw update logic
-        self.save(update_fields=["wins", "losses"])
-
-    def __str__(self):
-        return f"{self.user.username} - {self.game_name} - Score: {self.final_score}"
-
-
+# ✅ Tic-Tac-Toe Leaderboard Model
 class TicTacToeLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     draws = models.IntegerField(default=0)
 
     @property
     def final_score(self):
-        return self.wins - self.losses
+        return self.wins - self.losses  # Score = Wins - Losses
 
     def __str__(self):
         return f"{self.user.username} - Tic-Tac-Toe - Score: {self.final_score}"
 
 
-
-
 # ✅ Rock-Paper-Scissors Leaderboard Model
 class RPSLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
-    draws = models.IntegerField(default=0)  # Added this field
-    final_score = models.IntegerField(default=0)
+    draws = models.IntegerField(default=0)  # Draws are tracked but don’t affect score
 
     @property
     def final_score(self):
-        return self.wins - self.losses  # Modify if draws should affect the score
+        return self.wins - self.losses  # Only wins and losses affect the score
 
     def __str__(self):
-        return f"{self.user.username} - Rock-Paper-Scissors - Score: {self.final_score}"
+        return f"{self.user.username} - RPS - Score: {self.final_score}"
 
 
-# ✅ Memory Card Game Leaderboard Model
+
+# ✅ Memory Card Game Leaderboard Model (Ranking by least time taken)
 class MemoryLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    matches_found = models.IntegerField(default=0)  # Count of correct matches
-    moves_taken = models.IntegerField(default=0)  # Total moves used
-    final_score = models.IntegerField(default=0)  # Score calculation
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  
+    time_taken = models.FloatField(default=100)  # Time in seconds (default max)
+    
+    class Meta:
+        ordering = ["time_taken"]  # Rank by least time taken
 
-    def update_memory_score(self, matches, moves):
-        self.matches_found = F("matches_found") + matches
-        self.moves_taken = F("moves_taken") + moves
-        self.final_score = F("final_score") + (matches * 10 - moves)
-        self.save(update_fields=["matches_found", "moves_taken", "final_score"])
+    def update_score(self, new_time):
+        """ Update only if the new time is better (lower) """
+        if new_time < self.time_taken:
+            self.time_taken = new_time
+            self.save(update_fields=["time_taken"])
 
     def __str__(self):
-        return f"{self.user.username} - Memory Card - Score: {self.final_score}"
+        return f"{self.user.username} - Memory Cards - Time: {self.time_taken}s"
 
 
-# ✅ Snake Game Model
+# ✅ Snake Game Leaderboard (Ranking by highest score)
 class SnakeLeaderboard(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
-    date_played = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-score']
+        ordering = ["-score"]  # Rank by highest score
+
+    def update_score(self, new_score):
+        """ Update only if the new score is higher """
+        if new_score > self.score:
+            self.score = new_score
+            self.save(update_fields=["score"])
 
     def __str__(self):
-        return f"{self.user.username} - {self.score}"
+        return f"{self.user.username} - Snake - Score: {self.score}"
 
+
+# ✅ Ludo Game Leaderboard (Only for the current match, not stored permanently)
+class LudoMatchLeaderboard(models.Model):
+    player = models.CharField(max_length=50)  # Store player name
+    score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.player} - Ludo Score: {self.score}"
 
 
 # ✅ Game Review Model (For all games)
@@ -100,12 +88,3 @@ class GameReview(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.game_name} Review"
-
-class ChessLeaderboard(models.Model):
-    player = models.ForeignKey(User, on_delete=models.CASCADE)
-    wins = models.IntegerField(default=0)
-    losses = models.IntegerField(default=0)
-    score = models.IntegerField(default=0)  # Score = Wins - Losses
-
-    def __str__(self):
-        return f"{self.player.username} - Wins: {self.wins}, Losses: {self.losses}, Score: {self.score}"

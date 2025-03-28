@@ -1,8 +1,9 @@
+{% load static %}
 <div class="container">
-    <h1 class="text-center mt-4">Leaderboards</h1>
+    <h1 class="text-center mt-4">Leaderboards </h1>
 
-    <!-- Tic-Tac-Toe Leaderboard -->
-    <h2 class="mt-4">Tic-Tac-Toe Leaderboard</h2>
+    <!-- ✅ Tic-Tac-Toe Leaderboard -->
+    <h2 class="mt-4" style="font-size: 180%;">---❌⭕ Tic-Tac-Toe Leaderboard ⭕❌---</h2>
     <table class="table table-bordered mt-3">
         <thead class="thead-dark">
             <tr>
@@ -13,25 +14,15 @@
                 <th>Final Score</th>
             </tr>
         </thead>
-        <tbody>
-            {% for player in tic_tac_toe_leaderboard %}
+        <tbody id="tic-tac-toe-leaderboard">
             <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ player.user.username }}</td>
-                <td>{{ player.wins }}</td>
-                <td>{{ player.losses }}</td>
-                <td>{{ player.final_score }}</td>
+                <td colspan="5" class="text-center">Loading...</td>
             </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center">No players have played yet.</td>
-            </tr>
-            {% endfor %}
         </tbody>
     </table>
 
-    <!-- Rock-Paper-Scissors Leaderboard -->
-    <h2 class="mt-4">Rock-Paper-Scissors Leaderboard</h2>
+    <!-- ✅ Rock-Paper-Scissors Leaderboard -->
+    <h2 class="mt-4" style="font-size: 160%;">---✂️📃🪨 Rock-Paper-Scissors Leaderboard 🪨📃✂️---</h2>
     <table class="table table-bordered mt-3">
         <thead class="thead-dark">
             <tr>
@@ -49,78 +40,40 @@
         </tbody>
     </table>
 
-    <!-- Memory Card Game Leaderboard -->
-    <h2 class="mt-4">Memory Card Game Leaderboard</h2>
+    <!-- ✅ Memory Card Game Leaderboard -->
+    <h2 class="mt-4" style="font-size: 180%;">---📱 Memory Card Game Leaderboard 📱---</h2>
     <table class="table table-bordered mt-3">
         <thead class="thead-dark">
             <tr>
                 <th>Rank</th>
                 <th>Player</th>
-                <th>Matches Found</th>
-                <th>Moves Taken</th>
-                <th>Final Score</th>
+                <th>Time Taken (seconds)</th>
             </tr>
         </thead>
         <tbody id="memory-leaderboard">
             <tr>
-                <td colspan="5" class="text-center">Loading...</td>
+                <td colspan="3" class="text-center">Loading...</td>
             </tr>
         </tbody>
     </table>
 
-    <!-- Ludo Game Leaderboard -->
-    <h2>Ludo Leaderboard</h2>
-    <table id="ludo-leaderboard-table">
-        <thead>
+    <!-- ✅ Snake Game Leaderboard -->
+    <h2 class="mt-4" style="font-size: 180%;">---🍎🐍 Snake Game Leaderboard 🐍🍎---</h2>
+    <table class="table table-bordered mt-3">
+        <thead class="thead-dark">
             <tr>
                 <th>Rank</th>
                 <th>Player</th>
                 <th>Score</th>
-                <th>Wins</th>
-                <th>Losses</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Leaderboard data will be inserted here dynamically -->
+        <tbody id="snake-leaderboard">
+            <tr>
+                <td colspan="3" class="text-center">Loading...</td>
+            </tr>
         </tbody>
     </table>
-
-    
 </div>
 
-    
-</div>
-
-
-
-<!-- ✅ JavaScript should be placed AFTER the leaderboard -->
-<script>
-    function loadRPSLeaderboard() {
-        fetch("{% url 'get_rps_leaderboard' %}") // Fetch data from Django API
-        .then(response => response.json())
-        .then(data => {
-            let leaderboardTable = document.getElementById("rps-leaderboard");
-            leaderboardTable.innerHTML = ""; // Clear old data
-
-            if (data.leaderboard.length === 0) {
-                leaderboardTable.innerHTML = `<tr><td colspan="5" class="text-center">No players have played yet.</td></tr>`;
-            } else {
-                data.leaderboard.forEach((player, index) => {
-                    let row = `
-                        <tr>
-                            <td>${player.rank}</td>
-                            <td>${player.player}</td>
-                            <td>${player.wins}</td>
-                            <td>${player.losses}</td>
-                            <td>${player.final_score}</td>
-                        </tr>`;
-                    leaderboardTable.innerHTML += row;
-                });
-            }
-        })
-        .catch(error => console.error("Error loading leaderboard:", error));
-    }
-
-    // Load leaderboard when the page loads
-    document.addEventListener("DOMContentLoaded", loadRPSLeaderboard);
-</script>
+<!-- JavaScript for Leaderboards -->
+<script src="{% static 'js/leaderboard.js' %}"></script>
